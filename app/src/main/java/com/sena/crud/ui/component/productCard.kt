@@ -2,11 +2,8 @@ package com.sena.crud.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -20,52 +17,60 @@ import com.sena.crud.domain.model.ProductModel
 @Composable
 fun productCard(
     product: ProductModel
-){
+) {
+
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
+
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         )
-    ){
+    ) {
+
         Column(
             modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+
+            verticalArrangement =
+                Arrangement.spacedBy(10.dp)
         ) {
+
             Text(
-                text = "codigo: ${product.id}",
-                style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+                text = "Producto #${product.id}",
+
+                style =
+                    MaterialTheme.typography.headlineSmall,
+
+                fontWeight =
+                    FontWeight.Bold
             )
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(10.dp))
+
             Text(
                 text = product.title,
-                style = MaterialTheme.typography.titleMedium
+
+                style =
+                    MaterialTheme.typography.titleMedium
             )
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(10.dp))
+
             Text(
-                text = product.category,
-                style = MaterialTheme.typography.bodyMedium
+                text = "Categoría: ${product.category}",
+
+                style =
+                    MaterialTheme.typography.bodyMedium
             )
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(10.dp))
+
             Text(
                 text = product.description,
-                style = MaterialTheme.typography.bodyMedium
+
+                style =
+                    MaterialTheme.typography.bodyMedium
             )
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(10.dp))
+
             Text(
-                text = "pricio: ${ product.price }",
-                style = MaterialTheme.typography.labelMedium
+                text = "Precio: $${product.price}",
+
+                style =
+                    MaterialTheme.typography.labelLarge
             )
         }
     }
-
 }

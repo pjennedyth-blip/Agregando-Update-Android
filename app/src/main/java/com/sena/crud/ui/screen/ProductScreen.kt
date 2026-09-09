@@ -12,13 +12,25 @@ import com.sena.crud.ui.viewModel.ProductViewModel
 fun ProductScreen(
     productId: Int,
     viewModel: ProductViewModel = hiltViewModel()
-){
+) {
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     LaunchedEffect(productId) {
+
         viewModel.getProductById(productId)
     }
+
     ProductDetails(
         uiState = uiState,
-        onRetry = { viewModel.getProductById(productId) }
+
+        onRetry = {
+            viewModel.getProductById(productId)
+        },
+
+        onUpdate = { product ->
+
+            viewModel.updateProduct(product)
+        }
     )
 }

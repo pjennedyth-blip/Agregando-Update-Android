@@ -4,14 +4,18 @@ import com.sena.crud.domain.model.ProductModel
 import com.sena.crud.domain.repository.ProductRepository
 import javax.inject.Inject
 
-class GetProductUseCase @Inject constructor(
+class UpdateProductUseCase @Inject constructor(
     private val repository: ProductRepository
 ) {
 
     suspend operator fun invoke(
-        id: Int
+        id: Int,
+        product: ProductModel
     ): ProductModel {
 
-        return repository.getProductById(id)
+        return repository.updateProduct(
+            id = id,
+            product = product
+        )
     }
 }
