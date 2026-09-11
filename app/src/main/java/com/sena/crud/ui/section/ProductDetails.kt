@@ -1,11 +1,17 @@
 package com.sena.crud.ui.section
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,219 +29,338 @@ import com.sena.crud.ui.state.ProductUIState
 fun ProductDetails(
     uiState: ProductUIState,
     onRetry: () -> Unit,
-    onUpdate: (ProductModel) -> Unit
+    onShowAll: () -> Unit,
+    onCreate: (
+        String,
+        String,
+        String,
+        Double
+    ) -> Unit,
+    onUpdate: (
+        Int,
+        String,
+        String,
+        String,
+        Double
+    ) -> Unit,
+    onDelete: (Int) -> Unit
 ) {
 
-    when {
+    var selectedProduct by remember {
+        mutableStateOf<ProductModel?>(null)
+    }
 
-        uiState.isLoading -> {
+    var title by remember {
+        mutableStateOf("")
+    }
 
-            CircularProgressIndicator()
+    var description by remember {
+        mutableStateOf("")
+    }
+
+    var category by remember {
+        mutableStateOf("")
+    }
+
+    var price by remember {
+        mutableStateOf("")
+    }
+
+    LaunchedEffect(uiState.product?.id) {
+
+        uiState.product?.let { product ->
+
+            selectedProduct = product
+
+            title = product.title
+            description = product.description
+            category = product.category
+            price = product.price.toString()
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+
+        Text(
+            text = "CRUD DE PRODUCTOS"
+        )
+
+        Text(
+            text = "Crear, consultar, actualizar y eliminar"
+        )
+
+        Button(
+            onClick = onShowAll,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text("MOSTRAR TODOS")
         }
 
-        uiState.errorMessage != null &&
-                uiState.product == null -> {
+        OutlinedTextField(
+            value = title,
+            onValueChange = {
+                title = it
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text("Título")
+            },
+            singleLine = true
+        )
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
+        OutlinedTextField(
+            value = description,
+            onValueChange = {
+                description = it
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text("Descripción")
+            }
+        )
 
-                verticalArrangement =
-                    Arrangement.spacedBy(12.dp)
+        OutlinedTextField(
+            value = category,
+            onValueChange = {
+                category = it
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text("Categoría")
+            },
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = price,
+            onValueChange = {
+                price = it
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text("Precio")
+            },
+            singleLine = true
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement =
+                Arrangement.spacedBy(8.dp)
+        ) {
+
+            Button(
+                onClick = {
+
+                    val priceValue =
+                        price.toDoubleOrNull()
+
+                    if (
+                        title.isNotBlank() &&
+                        description.isNotBlank() &&
+                        category.isNotBlank() &&
+                        priceValue != null
+                    ) {
+
+                        onCreate(
+                            title,
+                            description,
+                            category,
+                            priceValue
+                        )
+
+                        selectedProduct = null
+
+                        title = ""
+                        description = ""
+                        category = ""
+                        price = ""
+                    }
+                },
+                modifier = Modifier.weight(1f),
+                enabled = !uiState.isCreating
             ) {
 
-                Text(
-                    text = uiState.errorMessage
-                )
+                if (uiState.isCreating) {
 
-                Button(
-                    onClick = onRetry
-                ) {
+                    CircularProgressIndicator()
 
-                    Text(
-                        text = "Reintentar"
-                    )
+                } else {
+
+                    Text("CREAR")
+                }
+            }
+
+            Button(
+                onClick = {
+
+                    val priceValue =
+                        price.toDoubleOrNull()
+
+                    val product =
+                        selectedProduct
+
+                    if (
+                        product != null &&
+                        priceValue != null
+                    ) {
+
+                        onUpdate(
+                            product.id,
+                            title,
+                            description,
+                            category,
+                            priceValue
+                        )
+                    }
+                },
+                modifier = Modifier.weight(1f),
+                enabled =
+                    selectedProduct != null &&
+                            !uiState.isUpdating
+            ) {
+
+                if (uiState.isUpdating) {
+
+                    CircularProgressIndicator()
+
+                } else {
+
+                    Text("ACTUALIZAR")
                 }
             }
         }
 
-        uiState.product != null -> {
+        if (uiState.successMessage != null) {
 
-            ProductEditForm(
-                product = uiState.product,
-
-                isUpdating = uiState.isUpdating,
-
-                successMessage = uiState.successMessage,
-
-                onUpdate = onUpdate
+            Text(
+                text = uiState.successMessage,
+                modifier = Modifier.padding(8.dp)
             )
+        }
+
+        if (uiState.errorMessage != null) {
+
+            Text(
+                text = uiState.errorMessage,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+
+        Text(
+            text = "Productos"
+        )
+
+        LazyColumn {
+
+            items(
+                items = uiState.products,
+                key = {
+                    it.id
+                }
+            ) { product ->
+
+                ProductItem(
+                    product = product,
+
+                    selected =
+                        selectedProduct?.id == product.id,
+
+                    onSelect = {
+
+                        selectedProduct = product
+
+                        title = product.title
+                        description = product.description
+                        category = product.category
+                        price = product.price.toString()
+                    },
+
+                    onDelete = {
+                        onDelete(product.id)
+
+                        if (
+                            selectedProduct?.id ==
+                            product.id
+                        ) {
+
+                            selectedProduct = null
+
+                            title = ""
+                            description = ""
+                            category = ""
+                            price = ""
+                        }
+                    }
+                )
+            }
         }
     }
 }
 
 
 @Composable
-private fun ProductEditForm(
+private fun ProductItem(
     product: ProductModel,
-    isUpdating: Boolean,
-    successMessage: String?,
-    onUpdate: (ProductModel) -> Unit
+    selected: Boolean,
+    onSelect: () -> Unit,
+    onDelete: () -> Unit
 ) {
 
-    var title by remember(product.id) {
-
-        mutableStateOf(product.title)
-    }
-
-    var description by remember(product.id) {
-
-        mutableStateOf(product.description)
-    }
-
-    var category by remember(product.id) {
-
-        mutableStateOf(product.category)
-    }
-
-    var price by remember(product.id) {
-
-        mutableStateOf(product.price.toString())
-    }
-
-
-    Column(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(20.dp),
-
-        verticalArrangement =
-            Arrangement.spacedBy(12.dp)
+            .padding(vertical = 6.dp)
+            .clickable {
+                onSelect()
+            }
     ) {
 
-        Text(
-            text = "Editar producto"
-        )
-
-        Text(
-            text = "ID: ${product.id}"
-        )
-
-
-        OutlinedTextField(
-            value = title,
-
-            onValueChange = {
-                title = it
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            label = {
-                Text("Título")
-            },
-
-            singleLine = true
-        )
-
-
-        OutlinedTextField(
-            value = description,
-
-            onValueChange = {
-                description = it
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            label = {
-                Text("Descripción")
-            }
-        )
-
-
-        OutlinedTextField(
-            value = category,
-
-            onValueChange = {
-                category = it
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            label = {
-                Text("Categoría")
-            },
-
-            singleLine = true
-        )
-
-
-        OutlinedTextField(
-            value = price,
-
-            onValueChange = {
-                price = it
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            label = {
-                Text("Precio")
-            },
-
-            singleLine = true
-        )
-
-
-        Button(
-            onClick = {
-
-                val priceValue =
-                    price.toDoubleOrNull()
-
-                if (priceValue != null) {
-
-                    val updatedProduct =
-                        product.copy(
-
-                            title = title,
-
-                            description = description,
-
-                            category = category,
-
-                            price = priceValue
-                        )
-
-                    onUpdate(updatedProduct)
-                }
-            },
-
-            enabled = !isUpdating,
-
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
 
-            if (isUpdating) {
-
-                CircularProgressIndicator()
-
-            } else {
-
-                Text(
-                    text = "Actualizar producto"
-                )
-            }
-        }
-
-
-        if (successMessage != null) {
+            Text(
+                text = "ID: ${product.id}"
+            )
 
             Text(
-                text = successMessage
+                text = product.title
             )
+
+            Text(
+                text = product.description
+            )
+
+            Text(
+                text = "Categoría: ${product.category}"
+            )
+
+            Text(
+                text = "Precio: $${product.price}"
+            )
+
+            if (selected) {
+
+                Text(
+                    text = "Producto seleccionado"
+                )
+            }
+
+            OutlinedButton(
+                onClick = onDelete
+            ) {
+
+                Text("ELIMINAR")
+            }
         }
     }
 }

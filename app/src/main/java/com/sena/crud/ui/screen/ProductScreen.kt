@@ -19,6 +19,8 @@ fun ProductScreen(
     LaunchedEffect(productId) {
 
         viewModel.getProductById(productId)
+
+        viewModel.getProducts()
     }
 
     ProductDetails(
@@ -28,9 +30,43 @@ fun ProductScreen(
             viewModel.getProductById(productId)
         },
 
-        onUpdate = { product ->
+        onShowAll = {
+            viewModel.getProducts()
+        },
 
-            viewModel.updateProduct(product)
+        onCreate = {
+                title,
+                description,
+                category,
+                price ->
+
+            viewModel.createProduct(
+                title = title,
+                description = description,
+                category = category,
+                price = price
+            )
+        },
+
+        onUpdate = {
+                id,
+                title,
+                description,
+                category,
+                price ->
+
+            viewModel.updateProduct(
+                id = id,
+                title = title,
+                description = description,
+                category = category,
+                price = price
+            )
+        },
+
+        onDelete = { id ->
+
+            viewModel.deleteProduct(id)
         }
     )
 }
