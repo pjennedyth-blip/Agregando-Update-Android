@@ -9,12 +9,12 @@ fun Product.toDomain(): ProductModel {
 
         id = id,
 
-        title = title,
+        title = title ?: "Sin título",
 
-        description = description,
+        description = description ?: "Sin descripción",
 
-        category = category,
+        category = category ?: "Sin categoría",
 
-        price = price
+        price = price ?: 0.0
     )
 }

@@ -6,7 +6,7 @@ import com.sena.crud.data.remote.dto.req.product.CreateProductRequest
 import com.sena.crud.data.remote.dto.req.product.UpdateProductRequest
 import com.sena.crud.domain.model.ProductModel
 import com.sena.crud.domain.repository.ProductRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class ProductRepositoryImpl @Inject constructor(
     private val api: ProductApiService
